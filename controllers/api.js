@@ -29,6 +29,11 @@ exports.getFacebook = function(req, res, next) {
         done(err, me);
       });
     },
+    getMyLikes: function(done) {
+      graph.get(req.user.facebook + '/likes', function(err, likes) {
+        done(err, likes.data);
+      });
+    },
     getMyFriends: function(done) {
       graph.get(req.user.facebook + '/friends', function(err, friends) {
         done(err, friends.data);
@@ -36,11 +41,13 @@ exports.getFacebook = function(req, res, next) {
     }
   },
   function(err, results) {
+    console.log(results.getMyFriends);
     if (err) return next(err);
     res.render('api/facebook', {
       title: 'Facebook API',
       me: results.getMe,
-      friends: results.getMyFriends
+      friends: results.getMyFriends,
+      likes: results.getMyLikes
     });
   });
 };
