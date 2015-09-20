@@ -16,11 +16,10 @@ block content
   h6 Username: #{me.username}
   h6 Link: #{me.link}
   h6 Email: #{me.email}
-  h6 Total Friends: #{friends.summary}
-
-  ul
-    each like in likes
-      li=like
+  h6 Friends Summary: #{friends.summary}
+  h6 First Post: #{onePost[0].story}
+  h6 Post: #{posts[0][0].story}
+  - var n = 0
   h3
     i.fa.fa-group
     |  My Friends
