@@ -25,27 +25,46 @@ exports.getFacebook = function(req, res, next) {
   graph.setAccessToken(token.accessToken);
   async.parallel({
     getMe: function(done) {
-      graph.get(req.user.facebook, function(err, me) {
+      graph.get('/me/?fields=first_name', function(err, me) {
+        //console.log(me);
+        //console.log(me.first_name);
         done(err, me);
       });
     },
-    getMyLikes: function(done) {
-      graph.get(req.user.facebook + '/likes', function(err, likes) {
-        done(err, likes.data);
+    getPosts: function(done) {
+        listPosts = [];
+        function getPosts(url) {
+          graph.get(url, function(err, posts) {
+          console.log(url);
+          listPosts.push(posts.data);
+          console.log(posts.data);
+          if(posts.paging && posts.paging.next) {
+            getPosts(posts.paging.next);
+          } else {
+            done(err, listPosts);
+          }
+        });
+      }
+      getPosts('/me/posts');
+    },
+    getOnePost: function(done) {
+      graph.get('/me/posts/', function(err, onePost) {
+        done(err, onePost.data);
       });
     },
     getMyFriends: function(done) {
-      graph.get(req.user.facebook + '/friends', function(err, friends) {
+      graph.get('/me/friends', function(err, friends) {
         done(err, friends.data);
       });
     }
   },
   function(err, results) {
-    console.log(results.getMyFriends);
     if (err) return next(err);
     res.render('api/facebook', {
       title: 'Facebook API',
       me: results.getMe,
+      onePost: results.getOnePost,
+      posts: results.getPosts,
       friends: results.getMyFriends,
       likes: results.getMyLikes
     });
